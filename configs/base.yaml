@@ -1,0 +1,88 @@
+# ==============================================================================
+# Deepfake Call Shield — Base Configuration
+# All paths are relative to the project root (Mini_Project/).
+# Use forward slashes on all platforms.
+# No secrets, credentials, or absolute paths belong here.
+# ==============================================================================
+
+# ── Reproducibility ───────────────────────────────────────────────────────
+seed: 42
+
+# ── Paths ─────────────────────────────────────────────────────────────────
+paths:
+  raw_data:  data/raw/LA
+  features:  data/features
+  manifests: data/manifests
+  models:    results/models
+  scores:    results/scores
+  tables:    results/tables
+
+# ── Dataset ───────────────────────────────────────────────────────────────
+dataset:
+  protocol_dir: data/raw/LA/ASVspoof2019_LA_cm_protocols
+  splits:
+    train: ASVspoof2019.LA.cm.train.trn.txt
+    dev:   ASVspoof2019.LA.cm.dev.trl.txt
+    eval:  ASVspoof2019.LA.cm.eval.trl.txt
+  audio_dirs:
+    train: data/raw/LA/ASVspoof2019_LA_train/flac
+    dev:   data/raw/LA/ASVspoof2019_LA_dev/flac
+    eval:  data/raw/LA/ASVspoof2019_LA_eval/flac
+  sample_rate: 16000    # Hz — official ASVspoof 2019 LA sample rate
+
+# ── Encoders ──────────────────────────────────────────────────────────────
+encoders:
+  - name: hubert_base
+    hf_id: facebook/hubert-base-ls960
+    layer: last           # "last" | "weighted_sum" (layer choice tuned on dev only)
+    pool: mean            # mean-pool over time dimension → fixed-size vector
+    batch_size: 8         # utterances per forward pass; safe for ~4 GB free RAM
+  - name: wav2vec2_base
+    hf_id: facebook/wav2vec2-base
+    layer: last
+    pool: mean
+    batch_size: 8
+
+# ── Augmentation ──────────────────────────────────────────────────────────
+augmentation:
+  # Applied to train split ONLY during feature extraction
+  train_conditions:
+    - clean               # no-op; always included
+    - noise               # Gaussian white noise at random SNR
+    - echo                # synthetic room impulse response convolution
+    - opus                # Opus encode→decode  (requires FFmpeg libopus)
+  # Applied to eval utterances at scoring time ONLY (never seen during training)
+  held_out_conditions:
+    - mp3                 # Requires FFmpeg libmp3lame
+    - g711                # Requires FFmpeg pcm_mulaw at 8 kHz
+    - phone_chain         # noise + echo + g711, chained
+  noise:
+    snr_db_range: [10, 20]       # uniform sample per utterance
+  echo:
+    delay_ms: 30
+    decay: 0.4
+  opus:
+    bitrate_kbps_range: [6, 16]  # uniform sample per utterance
+  mp3:
+    bitrate_kbps: 8
+  g711:
+    sample_rate: 8000
+
+# ── Classifier ────────────────────────────────────────────────────────────
+classifier:
+  type: logistic_regression
+  C_candidates: [0.001, 0.01, 0.1, 1.0]  # grid-searched on dev EER
+  max_iter: 1000
+  solver: lbfgs
+  class_weight: balanced    # compensates for bonafide/spoof class imbalance
+
+# ── Evaluation ────────────────────────────────────────────────────────────
+evaluation:
+  primary_metric: EER
+  bootstrap_n: 10000        # bootstrap resamples for 95% CI
+  ci_alpha: 0.05
+
+# ── Pilot extraction (run before full extraction to estimate cost) ─────────
+pilot:
+  n_files: 50               # utterances sampled from train split
+  split: train

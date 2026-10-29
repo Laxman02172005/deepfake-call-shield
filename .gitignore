@@ -1,0 +1,59 @@
+# =============================================================================
+# Deepfake Call Shield — .gitignore
+# =============================================================================
+
+# ── Virtual environment ───────────────────────────────────────────────────
+.venv/
+
+# ── Python bytecode ───────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+
+# ── Data — never commit raw audio or large generated files ────────────────
+data/raw/*
+!data/raw/.gitkeep
+data/features/*
+!data/features/.gitkeep
+
+# ── Results — scores and models are reproducible, tables are committed ────
+results/scores/*
+!results/scores/.gitkeep
+results/models/*
+!results/models/.gitkeep
+
+# ── Model weights (in case HF_HOME is set inside project) ────────────────
+*.bin
+*.safetensors
+*.onnx
+*.pt
+*.pth
+
+# ── Credentials and secrets ──────────────────────────────────────────────
+.env
+*.key
+*.pem
+secrets.yaml
+
+# ── OS / editor noise ────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── Jupyter ──────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── Pytest / coverage ────────────────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/

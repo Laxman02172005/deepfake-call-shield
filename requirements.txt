@@ -1,0 +1,33 @@
+# ==============================================================================
+# Deepfake Call Shield — Python dependencies
+# ==============================================================================
+#
+# IMPORTANT: PyTorch (torch, torchaudio) is NOT listed here because it requires
+# a special --index-url that cannot be expressed in a plain requirements.txt.
+#
+# Install PyTorch FIRST with:
+#   pip install torch==2.3.1+cpu torchaudio==2.3.1+cpu \
+#       --index-url https://download.pytorch.org/whl/cpu
+#
+# Then install the rest:
+#   pip install -r requirements.txt
+# ==============================================================================
+
+# ── HuggingFace ───────────────────────────────────────────────────────────
+transformers==4.44.2
+huggingface-hub==0.24.6
+
+# ── Audio I/O ─────────────────────────────────────────────────────────────
+# soundfile wraps libsndfile for WAV/FLAC I/O; no FFmpeg dependency here.
+soundfile==0.12.1
+
+# ── ML / numerics ─────────────────────────────────────────────────────────
+scikit-learn==1.5.2
+numpy==1.26.4
+scipy==1.14.1
+
+# ── Config / utilities ────────────────────────────────────────────────────
+pyyaml==6.0.2
+pydantic==2.8.2
+tqdm==4.66.5
+pandas==2.2.3

@@ -1,0 +1,10 @@
+# Dev/test dependencies (extends requirements.txt)
+-r requirements.txt
+
+# ── Testing ───────────────────────────────────────────────────────────────
+pytest==8.3.3
+pytest-cov==5.0.0
+
+# ── Code quality ──────────────────────────────────────────────────────────
+black==24.8.0
+ruff==0.6.4
